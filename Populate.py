@@ -24,7 +24,6 @@ class Populate:
         app.config.setdefault('SQLITE3_DATABASE', ':memory:')
         app.teardown_appcontext(self.teardown)
         db.init_app(app)
-        #use get_db() here
         if self.db is None:
             self.db=get_db()
         elif self.file is None:
@@ -46,7 +45,7 @@ class Populate:
         return 
 
 
-    #populates database
+    #populates database, returns number of entries added to database
     def popul(self):  
         db = self.db
         #if no data is saved in self.pop, then extract is called with given file path
@@ -80,28 +79,24 @@ class Populate:
                     )
             db.commit()
           
-            #if db.execute(
-             #   'SELECT id FROM dictionary WHERE word = ?', (word,)
-             #   ).fetchone() is not None:
-             #      error = 'word {} is already registered in dictionary.'.format(word)
-            #else:
-             #   try:
-              #      word = str(key)
-            #        definition = str(data[key])
-             #   except:
-            #        self.error="something went wrong"
-            #        continue
-             #   else:
-               #     db.execute(
-              #          'INSERT INTO dictionary (word, definition) VALUES (?, ?)',
-               #         (word, definition)
-              #      )
-               #     db.commit()
+            if db.execute(
+                'SELECT id FROM dictionary WHERE word = ?', (word,)
+                ).fetchone() is not None:
+                   error = 'word {} is already registered in dictionary.'.format(word)
+            else:
+                try:
+                    word = str(key)
+                    definition = str(data[key])
+                except:
+                    self.error="something went wrong"
+                    continue
+                else:
+                    db.execute(
+                        'INSERT INTO dictionary (word, definition) VALUES (?, ?)',
+                        (word, definition)
+                    )
+                    db.commit()
             i+=1
 
-        ##############################
-        #FOR TESTING
-        
-        
-        #flash(error)
+        #returns number of iterations (number of entries into database)
         return i
